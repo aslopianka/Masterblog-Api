@@ -18,8 +18,8 @@ app.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
 
 
 POSTS = [
-    {"id": 1, "title": "First post", "content": "This is the first post."},
-    {"id": 2, "title": "Second post", "content": "This is the second post."},
+    {"id": 1, "title": "First post", "content": "This is the first post.", "author": "John Doe", "date": "2023-01-01"},
+    {"id": 2, "title": "Second post", "content": "This is the second post.", "author": "Jane Doe", "date": "2023-01-01"},
 ]
 
 
@@ -30,10 +30,14 @@ def get_posts():
             "id": max((post['id'] for post in POSTS), default=0) + 1,
             "title": request.json.get('title'),
             "content": request.json.get('content'),
+            "author": request.json.get('author'),
+            "date": request.json.get('date')
         }
 
-        if not new_post or new_post.get('title') is None or new_post.get('content') is None:
-            return jsonify({"error": "Invalid post data"}), 400
+        if (not new_post or new_post.get('title') is None
+                or new_post.get('content') is None)\
+                or new_post.get('author') is None:
+            return jsonify({"error": "Invalid post data. Please add missing data."}), 400
 
         POSTS.append(new_post)
 
@@ -46,7 +50,7 @@ def get_posts():
         if (sort and direction and
                 sort not in ['title', 'content'] and
                 direction not in ['asc', 'desc']):
-            
+
             return jsonify({"error": "Invalid sort or direction parameters"}), 400
 
         sorted_posts = POSTS
@@ -68,6 +72,7 @@ def update_post(post_id):
 
         post['title'] = data.get('title', post['title'])
         post['content'] = data.get('content', post['content'])
+        post['author'] = data.get('author', post['author'])
 
         return jsonify(post), 200
 
@@ -87,18 +92,22 @@ def delete_post(post_id):
 
 
 @app.route('/api/posts/search', methods=['GET'])
-def get_post_by_search():
+def get_posts_by_search():
     title_search = request.args.get('title')
     content_search = request.args.get('content')
+    author_search = request.args.get('author')
+    date_search = request.args.get('date')
 
-    if not title_search and not content_search:
-        return jsonify({"error": "Please provide a title or content you would like to search by."}), 400
+    if not title_search and not content_search and not author_search and not date_search:
+        return jsonify({"error": "Please provide a criteria you would like to search by."}), 400
 
-    matching_post = None
+    matching_posts = []
 
     for post in POSTS:
         title_match = False
         content_match = False
+        author_match = False
+        date_match = False
 
         if title_search and title_search.lower() in post['title'].lower():
             title_match = True
@@ -106,14 +115,19 @@ def get_post_by_search():
         if content_search and content_search.lower() in post['content'].lower():
             content_match = True
 
-        if title_match or content_match:
-            matching_post = post
-            break
+        if author_search and author_search.lower() in post['author'].lower():
+            author_match = True
 
-    if matching_post:
-        return jsonify(matching_post), 200
+        if date_search and date_search.lower() in post['date'].lower():
+            date_match = True
+
+        if title_match or content_match or author_match or date_match:
+            matching_posts.append(post)
+
+    if matching_posts:
+        return jsonify(matching_posts), 200
     else:
-        return jsonify({"error": "Post not found"}), 404
+        return jsonify({"error": "No posts found matching the search"}), 404
 
 
 if __name__ == '__main__':

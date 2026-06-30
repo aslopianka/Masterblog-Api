@@ -20,9 +20,12 @@ body {
 }
 
 .input-field {
-    display: flex;
-    align-items: center;
     margin-bottom: 20px;
+    display: flex;
+}
+
+.header-controls input {
+    margin-right: 10px;
 }
 
 .input-field input,
@@ -38,7 +41,6 @@ body {
 
 .input-field input {
     flex-grow: 1;
-    margin-right: 10px;
 }
 
 .input-field input::placeholder {
@@ -61,6 +63,31 @@ body {
     margin-bottom: 20px;
     padding: 20px;
     position: relative;
+}
+
+.add-post-container,
+.search-container {
+    border-radius: 8px;
+    background-color: #f5f5f5;
+    margin-bottom: 20px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.add-post-container input,
+.search-container input {
+    width: 100%;
+}
+
+.input-row {
+    display: flex;
+    gap: 10px;
+}
+
+.input-row input {
+    flex: 1;
 }
 
 .post h2 {
@@ -88,4 +115,20 @@ body {
 
 .post button:hover {
     background-color: #cc0000;
+}
+
+@media (max-width: 600px) {
+    .container {
+        width: 95%;
+    }
+
+    .header-controls,
+    .input-row {
+        flex-direction: column;
+    }
+
+    .header-controls input {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
 }

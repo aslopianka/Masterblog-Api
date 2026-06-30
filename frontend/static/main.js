@@ -27,7 +27,7 @@ function loadPosts() {
             data.forEach(post => {
                 const postDiv = document.createElement('div');
                 postDiv.className = 'post';
-                postDiv.innerHTML = `<h2>${post.title}</h2><p>${post.content}</p>
+                postDiv.innerHTML = `<h2>${post.title}</h2><p><strong>Author: ${post.author}</strong></p><p>${post.content}</p>
                 <button onclick="deletePost(${post.id})">Delete</button>`;
                 postContainer.appendChild(postDiv);
             });
@@ -35,18 +35,57 @@ function loadPosts() {
         .catch(error => console.error('Error:', error));  // If an error occurs, log it to the console
 }
 
+// Function to search for posts based on the input value
+ function searchPosts() {
+     var baseUrl = document.getElementById('api-base-url').value;
+
+     var title = document.getElementById('search-title').value;
+     var author = document.getElementById('search-author').value;
+     var content = document.getElementById('search-content').value;
+
+     // Build the query string safely — only include fields that were filled in
+     const params = new URLSearchParams();
+     if (title) params.append('title', title);
+     if (author) params.append('author', author);
+     if (content) params.append('content', content);
+
+     fetch(baseUrl + '/posts/search?' + params.toString())
+         .then(response => response.json())
+         .then(data => {
+             const postContainer = document.getElementById('post-container');
+             postContainer.innerHTML = '';
+
+             // The backend returns an error object (not an array) when nothing matches
+             if (!Array.isArray(data)) {
+                 postContainer.innerHTML = `<p>${data.error}</p>`;
+                 return;
+             }
+
+             data.forEach(post => {
+                 const postDiv = document.createElement('div');
+                 postDiv.className = 'post';
+                 postDiv.innerHTML = `<h2>${post.title}</h2><p><strong>Author:${post.author}</strong></p><p>${post.content}</p>
+                 <button onclick="deletePost(${post.id})">Delete</button>`;
+                 postContainer.appendChild(postDiv);
+             });
+         })
+         .catch(error => console.error('Error:', error));
+
+ }
+
 // Function to send a POST request to the API to add a new post
 function addPost() {
     // Retrieve the values from the input fields
     var baseUrl = document.getElementById('api-base-url').value;
     var postTitle = document.getElementById('post-title').value;
     var postContent = document.getElementById('post-content').value;
+    var postAuthor = document.getElementById('post-author').value;
 
     // Use the Fetch API to send a POST request to the /posts endpoint
     fetch(baseUrl + '/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: postTitle, content: postContent })
+        body: JSON.stringify({ title: postTitle, content: postContent, author: postAuthor })
     })
     .then(response => response.json())  // Parse the JSON data from the response
     .then(post => {
