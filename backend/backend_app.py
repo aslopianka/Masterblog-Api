@@ -18,8 +18,8 @@ app.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
 
 
 POSTS = [
-    {"id": 1, "title": "First post", "content": "This is the first post.", "author": "John Doe", "date": "2023-01-01"},
-    {"id": 2, "title": "Second post", "content": "This is the second post.", "author": "Jane Doe", "date": "2023-01-01"},
+    {"id": 1, "title": "First post", "content": "This is the first post.", "author": "John Doe"},
+    {"id": 2, "title": "Second post", "content": "This is the second post.", "author": "Jane Doe"},
 ]
 
 
@@ -30,8 +30,7 @@ def get_posts():
             "id": max((post['id'] for post in POSTS), default=0) + 1,
             "title": request.json.get('title'),
             "content": request.json.get('content'),
-            "author": request.json.get('author'),
-            "date": request.json.get('date')
+            "author": request.json.get('author')
         }
 
         if (not new_post or new_post.get('title') is None
@@ -48,7 +47,7 @@ def get_posts():
         direction = request.args.get('direction', None)
 
         if (sort and direction and
-                sort not in ['title', 'content'] and
+                sort not in ['title', 'content', 'author'] and
                 direction not in ['asc', 'desc']):
 
             return jsonify({"error": "Invalid sort or direction parameters"}), 400
@@ -96,9 +95,8 @@ def get_posts_by_search():
     title_search = request.args.get('title')
     content_search = request.args.get('content')
     author_search = request.args.get('author')
-    date_search = request.args.get('date')
 
-    if not title_search and not content_search and not author_search and not date_search:
+    if not title_search and not content_search and not author_search:
         return jsonify({"error": "Please provide a criteria you would like to search by."}), 400
 
     matching_posts = []
@@ -107,7 +105,6 @@ def get_posts_by_search():
         title_match = False
         content_match = False
         author_match = False
-        date_match = False
 
         if title_search and title_search.lower() in post['title'].lower():
             title_match = True
@@ -118,10 +115,7 @@ def get_posts_by_search():
         if author_search and author_search.lower() in post['author'].lower():
             author_match = True
 
-        if date_search and date_search.lower() in post['date'].lower():
-            date_match = True
-
-        if title_match or content_match or author_match or date_match:
+        if title_match or content_match or author_match:
             matching_posts.append(post)
 
     if matching_posts:
