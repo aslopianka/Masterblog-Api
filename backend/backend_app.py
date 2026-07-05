@@ -50,7 +50,7 @@ def get_posts():
 
         POSTS.append(new_post)
 
-        return jsonify(POSTS), 201
+        return jsonify(new_post), 201
 
     else:
         sort = request.args.get('sort', None)
