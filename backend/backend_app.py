@@ -35,17 +35,18 @@ def get_posts():
     POST: Adds a new blog post to the collection.
     """
     if request.method == 'POST':
+
+        if (request.json.get('title') is None
+                or request.json.get('content') is None)\
+                or request.json.get('author') is None:
+            return jsonify({"error": "Invalid post data. Please add missing data."}), 400
+
         new_post = {
             "id": max((post['id'] for post in POSTS), default=0) + 1,
             "title": request.json.get('title'),
             "content": request.json.get('content'),
             "author": request.json.get('author')
         }
-
-        if (not new_post or new_post.get('title') is None
-                or new_post.get('content') is None)\
-                or new_post.get('author') is None:
-            return jsonify({"error": "Invalid post data. Please add missing data."}), 400
 
         POSTS.append(new_post)
 
