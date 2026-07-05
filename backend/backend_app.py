@@ -56,8 +56,8 @@ def get_posts():
         sort = request.args.get('sort', None)
         direction = request.args.get('direction', None)
 
-        if (sort and direction and
-                sort not in ['title', 'content', 'author'] and
+        if (sort or direction or
+                sort not in ['title', 'content', 'author'] or
                 direction not in ['asc', 'desc']):
 
             return jsonify({"error": "Invalid sort or direction parameters"}), 400
