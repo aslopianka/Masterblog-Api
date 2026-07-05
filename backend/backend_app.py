@@ -1,3 +1,6 @@
+"""
+This module contains a Flask-based RESTful API for managing blog posts.
+"""
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
@@ -25,6 +28,12 @@ POSTS = [
 
 @app.route('/api/posts', methods=['GET', 'POST'])
 def get_posts():
+    """
+    Handles GET and POST requests for the posts collection.
+    
+    GET: Returns a list of all blog posts, optionally sorted.
+    POST: Adds a new blog post to the collection.
+    """
     if request.method == 'POST':
         new_post = {
             "id": max((post['id'] for post in POSTS), default=0) + 1,
@@ -65,6 +74,9 @@ def get_posts():
 
 @app.route('/api/posts/<int:post_id>', methods=['PUT'])
 def update_post(post_id):
+    """
+    Updates an existing blog post by its ID.
+    """
     post = next((post for post in POSTS if post['id'] == post_id), None)
     if post:
         data = request.get_json()
@@ -81,6 +93,9 @@ def update_post(post_id):
 
 @app.route('/api/posts/<int:post_id>', methods=['DELETE'])
 def delete_post(post_id):
+    """
+    Deletes a blog post by its ID.
+    """
     post = next((post for post in POSTS if post['id'] == post_id), None)
     if post:
         POSTS.remove(post)
@@ -92,6 +107,9 @@ def delete_post(post_id):
 
 @app.route('/api/posts/search', methods=['GET'])
 def get_posts_by_search():
+    """
+    Searches for blog posts based on title, content, or author provided as query parameters.
+    """
     title_search = request.args.get('title')
     content_search = request.args.get('content')
     author_search = request.args.get('author')
